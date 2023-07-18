@@ -107,9 +107,9 @@ std::string toLowerCase(const std::string& str) {
 }
 
 std::vector<std::string> commandList = {
-	"sysbroadcast",
+	"broadcast",
 	"test",
-	"test",
+	"shutdown",
 	"reload",
 };
 
@@ -124,21 +124,27 @@ int parseCommand(std::string input) {
 	//SetConsoleTextAttribute(hConsole, adminNameAttribute);
 	//std::cout << "Xoot:>";
 	if (input.length() == 0) { input = "nothing"; }
-	// toLowerCase
-	std::string lInput = toLowerCase(input);
 	// Split()
-	std::vector<std::string> words = split(lInput);
+	std::vector<std::string> words = split(Input);
+	// toLowerCase
+	std::string lInput = toLowerCase(words[0]);
 	// Find indexOf()
-	int inCommand = indexOf(commandList, words[0]);
+	int inCommand = indexOf(commandList, lInput);
 
 	// Capture local terminal commands, forward all other input to the server
 	switch (inCommand)
 	{
-	case 0: // this help data
-	case 1:
-	case 2:
+	case 0: // broadcast
+		SystemBroa
+		return inCommand;
 		break;
-	case 3: // set text color 0-15
+	case 1:
+		return inCommand;
+		break;
+	case 2:
+		return inCommand;
+		break;
+	case 3: // reload files by batch
 	
 		// Check if the command has enough arguments
 		if (words.size() < 2) {
@@ -216,11 +222,15 @@ int parseCommand(std::string input) {
 		default:
 			break;
 		}
-	
+		return inCommand;
 	break;
 	case 4: // exit command to close terminal
+		return inCommand;
 		break;
+
 	default:
+		// unknown command
+		return inCommand;
 		break;
 	}
 }

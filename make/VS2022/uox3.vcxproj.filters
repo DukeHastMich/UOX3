@@ -303,6 +303,9 @@
     <ClCompile Include="..\..\source\cChar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="terminUOX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\ConfigOS.h">

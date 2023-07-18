@@ -108,12 +108,12 @@ int main() {
 			SetConsoleTextAttribute(hConsole, adminTextAttribute);
 			std::getline(std::cin, input);
 			if (input.length() == 0) { input = "nothing"; }
+			// toLowerCase
+			std::string lInput = toLowerCase(input);
 			// Split()
-			std::vector<std::string> words = split(input);
-				// toLowerCase
-			std::string lInput = toLowerCase(words[0]);
+			std::vector<std::string> words = split(lInput);
 			// Find indexOf()
-		int inCommand = indexOf(commandList, lInput);
+			int inCommand = indexOf(commandList, words[0]);
 
 			// Capture local terminal commands, forward all other input to the server
 			switch (inCommand)
@@ -212,7 +212,7 @@ int main() {
 			default:
 				// not a local command, forward to server
 				DWORD bytesWritten;
-				if (WriteFile(hPipe, input.c_str(), static_cast<DWORD>(input.length()), &bytesWritten, nullptr)) {
+				if (WriteFile(hPipe, lInput.c_str(), static_cast<DWORD>(lInput.length()), &bytesWritten, nullptr)) {
 				}
 				else {
 					std::cout << "Failed to send message to the main console application. Error code: " << GetLastError() << std::endl;

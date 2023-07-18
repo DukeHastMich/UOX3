@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <optional>
+#include <numeric>
 
 #include "uox3.h"
 #include "weight.h"
@@ -81,13 +82,11 @@
 #if PLATFORM == WINDOWS
 #include <process.h>
 #include <conio.h>
+#endif
+
 #include <iostream>
 #include <windows.h>
 #include <string>
-#include "../make/VS2022/terminUOX.cpp"
-#endif
-#include <numeric>
-
 
 
 //o------------------------------------------------------------------------------------------------o
@@ -302,7 +301,6 @@ auto main(SI32 argc, char* argv[]) -> int
 	Console.PrintDone();
 
 	// Start/Initalize classes, data, network
-
 	StartInitialize(serverdata);
 
 	// Main Loop
@@ -341,7 +339,6 @@ auto main(SI32 argc, char* argv[]) -> int
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(cwmWorldState->GetPlayersOnline() ? 5 : 90));
 		if (cwmWorldState->ServerProfile()->LoopTimeCount() >= 1000)
-
 		{
 			cwmWorldState->ServerProfile()->LoopTimeCount(0);
 			cwmWorldState->ServerProfile()->LoopTime(0);
@@ -396,7 +393,6 @@ auto main(SI32 argc, char* argv[]) -> int
 		if (!cwmWorldState->GetReloadingScripts())
 		{
 			//auto stopauto = EventTimer();
-
 			EVENT_TIMER(stopauto, EVENT_TIMER_OFF);
 
 			std::chrono::time_point<std::chrono::system_clock> currentTime = std::chrono::system_clock::now();
@@ -428,7 +424,6 @@ auto main(SI32 argc, char* argv[]) -> int
 		cwmWorldState->ServerProfile()->IncLoopTime(tempTime);
 		EVENT_TIMER_RESET(stopwatch);
 		DoMessageLoop();
-
 		EVENT_TIMER_NOW(stopwatch, Delta for DoMessageLoop, EVENT_TIMER_CLEAR);
 
 		// Check if it's time for evaluation and adjustment
@@ -493,42 +488,96 @@ auto main(SI32 argc, char* argv[]) -> int
 		if (ReadFile(hPipe, buffer, sizeof(buffer) - 1, &bytesRead, nullptr)) {
 			buffer[bytesRead] = '\0';
 
-			
+			// This will need a more complex multi element csv array interpreter for commands
 			command = buffer;
-			if (command == "") { command = "nothing"; }
 
-			std::cout << " |Xoot:>> " << command << std::endl;
-			std::string reply = " ";
-
-		SI32 parseResult = parseCommandFunc(command);
-			if (parseResult == -1) {
-						reply = (command + " is an unknown request.");  // garbage input collector
-				Console.Print("Disregarding unknown request.");
-	
-			};
-			Console.Print(command);
-
+			std::cout << "Xoot:>> " << command << std::endl;
 
 			// Process the command and prepare the reply
-			if (parseResult == 1)
+			std::string reply = " ";
+			if (command == "exit")
 			{
 				reply = (command + " received.");  // indicating terminal closure
 				Console.Print("Terminal was closed.");
+				terminalCleanup(isConnected, hPipe);
 			}
-			else if (parseResult == 2)
-			{
-				reply = "nothing received.";  //null command issued
-				Console.Print("Disregarding null request.");
-			}
-			else if (parseResult == 4)
+			else if (command == "reload 0")
 			{
 				reply = (command + " received.");  // test command
+				toLoad = 0;
+			}
+			else if (command == "reload 1")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 1;
+			}
+			else if (command == "reload 2")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 2;
+			}
+			else if (command == "reload 3")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 3;
+			}
+			else if (command == "reload 4")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 4;
+			}
+			else if (command == "reload 5")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 5;
+			}
+			else if (command == "reload 6")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 6;
+			}
+			else if (command == "reload 7")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 7;
+			}
+			else if (command == "reload 8")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 8;
+			}
+			else if (command == "reload 9")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 9;
+			}
+			else if (command == "reload 10")
+			{
+				reply = (command + " received.");  // test command
+				toLoad = 10;
+			}
+			else if (command == "shutdown")
+			{
+				reply = (command + " received.");  // test command
+				terminalCleanup(isConnected, hPipe);
 				killTerminal(pi);
 				cwmWorldState->SetKeepRun(false);
 			}
-			else if (parseResult == 5)
+			else if (command == "sysbroadcast")
 			{
-				reply = (command + " received.");  // test command
+				reply = "Broadcasting.";  //null command issued
+				SysBroadcast("The admin is testing system broadcast from the terminal!");
+			}
+			else if (command == "nothing")
+			{
+				reply = "nothing received.";  //null command issued
+				Console.Print("Disregarding null request.");
+
+			}
+			else
+			{
+				reply = (command + " is an unknown request.");  // garbage input collector
+				Console.Print("Disregarding unknown request.");
 			}
 
 
@@ -541,6 +590,85 @@ auto main(SI32 argc, char* argv[]) -> int
 				std::cout << "terminal disconnected. Error code: " << GetLastError() << std::endl;
 				terminalCleanup(isConnected, hPipe);
 			}
+		}
+
+		switch (toLoad)
+		{
+		case 0:	// Reload regions
+			std::cout << "Reload 0" << std::endl;
+			UnloadRegions();
+			LoadRegions();
+			LoadTeleportLocations();
+			toLoad = -1;
+			break;
+		case 1:	// Reload spawn regions
+			std::cout << "Reload 1" << std::endl;
+			UnloadSpawnRegions();
+			LoadSpawnRegions();
+			toLoad = -1;
+			break;
+		case 2:	// Reload Spells
+			std::cout << "Reload 2" << std::endl;
+			Magic->LoadScript();
+			toLoad = -1;
+			break;
+		case 3: // Reload Commands
+			std::cout << "Reload 3" << std::endl;
+			Commands->Load();
+			toLoad = -1;
+			break;
+		case 4:	// Reload DFNs
+			std::cout << "Reload 4" << std::endl;
+			FileLookup->Reload();
+			LoadSkills();
+			Skills->Load();
+			toLoad = -1;
+			break;
+		case 5: // Reload JScripts
+			std::cout << "Reload 5" << std::endl;
+			messageLoop << MSG_RELOADJS;
+			toLoad = -1;
+			break;
+		case 6: // Reload HTMLTemplates
+			std::cout << "Reload 6" << std::endl;
+			HTMLTemplates->Unload();
+			HTMLTemplates->Load();
+			toLoad = -1;
+			break;
+		case 7:	// Reload INI
+			std::cout << "Reload 7" << std::endl;
+			cwmWorldState->ServerData()->Load();
+			break;
+			toLoad = -1;
+		case 8: // Reload Everything
+			std::cout << "Reload 8" << std::endl;
+			FileLookup->Reload();
+			UnloadRegions();
+			LoadRegions();
+			UnloadSpawnRegions();
+			LoadSpawnRegions();
+			Magic->LoadScript();
+			Commands->Load();
+			LoadSkills();
+			Skills->Load();
+			messageLoop << MSG_RELOADJS;
+			HTMLTemplates->Unload();
+			HTMLTemplates->Load();
+			cwmWorldState->ServerData()->Load();
+			toLoad = -1;
+			break;
+		case 9: // Reload Accounts
+			std::cout << "Reload 9" << std::endl;
+			Accounts->Load();
+			toLoad = -1;
+			break;
+		case 10: // Reload Dictionaries
+			std::cout << "Reload 10" << std::endl;
+			Dictionary->LoadDictionaries();
+			toLoad = -1;
+			break;
+		default:
+			break;
 		}
 
 	}
@@ -594,7 +722,6 @@ auto AdjustInterval(std::chrono::milliseconds interval, std::chrono::millisecond
 	long long adjustedCount = static_cast<long long>(interval.count() * (1.0 + scaleFactor * adjustmentFactor));
 	return std::chrono::milliseconds(adjustedCount);
 }
-
 
 //o------------------------------------------------------------------------------------------------o
 // Initialize the network
@@ -1171,12 +1298,10 @@ auto MountCreature(CSocket* sockPtr, CChar* s, CChar* x) -> void
 		s->SetOnHorse(true);
 		auto c = Items->CreateItem(nullptr, s, 0x0915, 1, x->GetSkin(), OT_ITEM);
 
-
 		auto xName = GetNpcDictName(x, sockPtr, NRS_SYSTEM);
 		c->SetName(xName);
 		c->SetDecayable(false);
 		c->SetLayer(IL_MOUNT);
-
 
 		if (cwmWorldState->creatures[x->GetId()].MountId() != 0)
 		{
@@ -1526,10 +1651,8 @@ auto GenericCheck(CSocket* mSock, CChar& mChar, bool checkFieldEffects, bool doW
 	{
 		mChar.SetEvadeState(false);
 #if defined( UOX_DEBUG_MODE ) && defined( DEBUG_COMBAT )
-
 		std::string mCharName = GetNpcDictName(&mChar, nullptr, NRS_SYSTEM);
 		Console.Print(oldstrutil::format("DEBUG: EvadeTimer ended for NPC (%s, 0x%X, at %i, %i, %i, %i).\n", mCharName.c_str(), mChar.GetSerial(), mChar.GetX(), mChar.GetY(), mChar.GetZ(), mChar.WorldNumber()));
-
 #endif
 	}
 
@@ -1547,9 +1670,8 @@ auto GenericCheck(CSocket* mSock, CChar& mChar, bool checkFieldEffects, bool doW
 			if (mChar.GetTimer(tCHAR_POISONTIME) <= cwmWorldState->GetUICurrentTime() || cwmWorldState->GetOverflow())
 			{
 				if (mChar.GetTimer(tCHAR_POISONWEAROFF) > cwmWorldState->GetUICurrentTime())
-
+				{
 					std::string mCharName = GetNpcDictName(&mChar, nullptr, NRS_SPEECH);
-
 
 					switch (mChar.GetPoisoned())
 					{
@@ -1983,7 +2105,6 @@ auto CheckNPC(CChar& mChar, bool checkAI, bool doRestock, bool doPetOfflineCheck
 				mChar.SetTimer(tNPC_SUMMONTIME, BuildTimeValue(25));
 				return;
 			}
-
 			Effects->PlaySound(&mChar, 0x01FE);
 			mChar.SetDead(true);
 			mChar.Delete();
@@ -1999,7 +2120,6 @@ auto CheckNPC(CChar& mChar, bool checkAI, bool doRestock, bool doPetOfflineCheck
 	{
 		mChar.SetReattackAt(cwmWorldState->ServerData()->CombatNPCBaseReattackAt());
 	}
-
 
 	auto mNpcWander = mChar.GetNpcWander();
 	if (mNpcWander == WT_SCARED)
@@ -2070,7 +2190,6 @@ auto CheckNPC(CChar& mChar, bool checkAI, bool doRestock, bool doPetOfflineCheck
 		mChar.SetTimer(tNPC_FLEECOOLDOWN, BuildTimeValue(5)); // Wait at least 5 seconds before reentring flee-mode!
 		mChar.SetNpcWander(mChar.GetOldNpcWander());
 		if (mChar.GetMounted())
-
 		{
 			mChar.SetTimer(tNPC_MOVETIME, BuildTimeValue(mChar.GetMountedWalkingSpeed()));
 		}
@@ -3732,10 +3851,7 @@ auto GetTileName(CItem& mItem, std::string& itemname) -> size_t
 //o------------------------------------------------------------------------------------------------o
 //|	Purpose		-	Returns the dictionary name for a given NPC, if their name equals # or a dictionary ID
 //o------------------------------------------------------------------------------------------------o
-
-
 auto GetNpcDictName(CChar* mChar, CSocket* tSock, UI08 requestSource) -> std::string
-
 {
 	CChar* tChar = nullptr;
 	if (tSock)
@@ -3743,9 +3859,7 @@ auto GetNpcDictName(CChar* mChar, CSocket* tSock, UI08 requestSource) -> std::st
 		tChar = tSock->CurrcharObj();
 	}
 
-
 	std::string dictName = mChar->GetNameRequest(tChar, requestSource);
-
 	SI32 dictEntryId = 0;
 
 	if (dictName == "#")

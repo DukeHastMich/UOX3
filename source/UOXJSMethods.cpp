@@ -26,7 +26,7 @@
 #include "cGuild.h"
 #include "skills.h"
 #include "speech.h"
-#include "gump.h"
+#include "CGump.h"
 #include "CJSMapping.h"
 #include "cScript.h"
 #include "cEffects.h"
@@ -376,7 +376,7 @@ JSBool CSocket_Send( JSContext *cx, JSObject *obj, uintN argc, jsval *argv, [[ma
 //o------------------------------------------------------------------------------------------------o
 //|	Function	-	Gump()
 //o------------------------------------------------------------------------------------------------o
-//|	Purpose		-	Cosntructor for creating a new JS Gump object
+//|	Purpose		-	Constructor for creating a new JS Gump object
 //o------------------------------------------------------------------------------------------------o
 JSBool Gump( JSContext *cx, JSObject *obj, [[maybe_unused]] uintN argc, [[maybe_unused]] jsval *argv, [[maybe_unused]] jsval *rval )
 {
@@ -3039,7 +3039,8 @@ JSBool CMisc_HasSpell( JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 			return JS_TRUE;
 		}
 
-		if( Magic->HasSpell( myItem, spellId ))
+		// Code checks for spell based on index starting at 0, while spells have spellIDs starting from 1
+		if( Magic->HasSpell( myItem, spellId - 1 ))
 		{
 			*rval = BOOLEAN_TO_JSVAL( JS_TRUE );
 		}

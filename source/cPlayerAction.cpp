@@ -14,7 +14,7 @@
 #include "books.h"
 #include "magic.h"
 #include "townregion.h"
-#include "gump.h"
+#include "CGump.h"
 #include "cGuild.h"
 #include "ssection.h"
 #include "cServerDefinitions.h"
@@ -220,6 +220,7 @@ bool CPIGetItem::Handle( void )
 		if( ourChar->IsFrozen() )
 		{
 			ourChar->SetFrozen( false );
+			ourChar->Dirty( UT_UPDATE );
 		}
 	}
 
@@ -803,6 +804,7 @@ bool CPIEquipItem::Handle( void )
 		if( ourChar->IsFrozen() )
 		{
 			ourChar->SetFrozen( false );
+			ourChar->Dirty( UT_UPDATE );
 		}
 	}
 

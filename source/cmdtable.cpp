@@ -19,7 +19,7 @@
 #include "PageVector.h"
 #include "speech.h"
 #include "cHTMLSystem.h"
-#include "gump.h"
+#include "CGump.h"
 #include "cEffects.h"
 #include "classes.h"
 #include "regions.h"
@@ -254,7 +254,7 @@ void Command_GetLight( CSocket *s )
 			}
 			else
 			{
-				s->SysMessage( 1632, static_cast<LIGHTLEVEL>(RoundNumber( i - Races->VisLevel( mChar->GetRace() )))); // Current light level is %i
+				s->SysMessage( 1632, static_cast<LIGHTLEVEL>(std::round( i - Races->VisLevel( mChar->GetRace() )))); // Current light level is %i
 			}
 		}
 		else
